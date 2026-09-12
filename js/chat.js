@@ -3,15 +3,19 @@ const chatId = new URLSearchParams(window.location.search).get("id");
 const me = getUser();
 if (!chatId) window.location.href = "home.html";
 
+let isSending = false;
+
 async function loadThread() {
   const threadEl = document.getElementById("thread");
   try {
     const data = await social(`/api/chats/${chatId}/messages`);
     const other = data.other_user || { display_name: "User" };
     document.getElementById("otherName").textContent = other.display_name;
-    const avatarEl = document.getElementById("otherAvatar");
-    if (other.profile_picture_url) avatarEl.outerHTML = `<img class="avatar" src="${other.profile_picture_url}">`;
-    else avatarEl.textContent = initials(other.display_name);
+
+    const wrap = document.getElementById("otherAvatarWrap");
+    wrap.innerHTML = other.profile_picture_url
+      ? `<img class="avatar" src="${other.profile_picture_url}">`
+      : `<div class="avatar">${initials(other.display_name)}</div>`;
 
     if (!data.messages.length) {
       threadEl.innerHTML = `<div class="empty">No messages yet. Say hello 👋</div>`;
@@ -20,7 +24,9 @@ async function loadThread() {
     }
     threadEl.scrollTop = threadEl.scrollHeight;
   } catch (err) {
-    threadEl.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
+    if (!threadEl.querySelector(".bubble")) {
+      threadEl.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
+    }
   }
 }
 
@@ -28,6 +34,7 @@ function renderBubble(m) {
   const mine = m.sender_id === me.id;
   let mediaHtml = "";
   if (m.media_url && m.media_type === "image") mediaHtml = `<img src="${m.media_url}">`;
+  if (m.media_url && m.media_type === "audio") mediaHtml = `<audio controls src="${m.media_url}" style="width:100%"></audio>`;
   return `<div class="bubble ${mine ? "mine" : "theirs"}">
     ${mediaHtml}
     ${m.content ? escapeHtml(m.content) : ""}
@@ -70,5 +77,51 @@ document.getElementById("fileInput").addEventListener("change", async (e) => {
   e.target.value = "";
 });
 
+// ---------- voice notes ----------
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+document.getElementById("micBtn").addEventListener("click", async () => {
+  if (isRecording) {
+    mediaRecorder.stop();
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      isRecording = false;
+      document.getElementById("micBtn").textContent = "🎤";
+      if (isSending) return;
+      isSending = true;
+      toast("Sending voice note...");
+      try {
+        const blob = new Blob(recordedChunks, { type: "audio/webm" });
+        const form = new FormData();
+        form.append("file", blob, "voice-note.webm");
+        const media = await social("/api/media/upload", { method: "POST", body: form });
+        await social(`/api/chats/${chatId}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ content: "", media_url: media.media_url, media_type: media.media_type }),
+        });
+        loadThread();
+      } catch (err) {
+        toast(err.message);
+      }
+      isSending = false;
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    document.getElementById("micBtn").textContent = "⏹";
+    toast("Recording... tap again to send");
+  } catch (err) {
+    toast("Microphone access denied or unavailable");
+  }
+});
+
 loadThread();
-setInterval(loadThread, 5000); // simple polling refresh
+setInterval(loadThread, 5000);
