@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="thread-header">
+      <a href="pages.html" class="back">←</a>
+      <div class="avatar" id="pageAvatar">?</div>
+      <div class="name" id="pageName">Loading...</div>
+    </div>
+  </header>
+  <main>
+    <div id="composerCard" style="display:none" class="card">
+      <div class="field"><textarea id="postContent" rows="3" placeholder="Write something for your followers..."></textarea></div>
+      <button class="btn" id="postBtn">Post</button>
+    </div>
+    <div id="posts"><div class="empty">Loading posts...</div></div>
+  </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/page.js"></script>
+</body></html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chat — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="thread-header">
+      <a href="home.html" class="back">←</a>
+      <div class="avatar" id="otherAvatar">?</div>
+      <div class="name" id="otherName">Loading...</div>
+    </div>
+  </header>
+  <main class="thread" id="thread">
+    <div class="empty">Loading messages...</div>
+  </main>
+  <div class="composer">
+    <label class="icon-btn ghost" for="fileInput">📎</label>
+    <input type="file" id="fileInput" accept="image/*" hidden>
+    <input type="text" id="msgInput" placeholder="Message...">
+    <button class="icon-btn" id="sendBtn">➤</button>
+  </div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/chat.js"></script>
+</body></html>

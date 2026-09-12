@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pages — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="logo"><img src="" id="logoImg" alt=""> Pages</div>
+    </div>
+  </header>
+  <main>
+    <div class="card">
+      <h3>Create a page</h3>
+      <div class="field" style="margin-top:10px"><input type="text" id="pName" placeholder="Page name"></div>
+      <div class="field"><input type="text" id="pDesc" placeholder="What's this page about?"></div>
+      <div class="field">
+        <select id="pVisibility">
+          <option value="public">Public — anyone can follow</option>
+          <option value="private">Private — invite only</option>
+        </select>
+      </div>
+      <button class="btn" id="createBtn">Create page</button>
+      <p class="error-msg" id="createErr"></p>
+    </div>
+    <div class="section-label">Discover public pages</div>
+    <div id="list"><div class="empty">Loading...</div></div>
+  </main>
+  <div id="navSlot"></div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/pages.js"></script>
+</body></html>

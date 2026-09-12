@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="logo"><img src="" id="logoImg" alt=""> Settings</div>
+    </div>
+  </header>
+  <main>
+    <div class="card" style="text-align:center;padding:24px 14px">
+      <div class="avatar avatar-lg" id="profAvatar" style="margin:0 auto 12px">?</div>
+      <h3 id="profName">—</h3>
+      <p id="profEmail">—</p>
+      <p id="profLocation" style="margin-top:6px"></p>
+    </div>
+    <div class="card">
+      <button class="btn danger" id="logoutBtn">Log out</button>
+    </div>
+  </main>
+  <div id="navSlot"></div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/settings.js"></script>
+</body></html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New chat — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="thread-header">
+      <a href="home.html" class="back">←</a>
+      <div class="name">Start a new chat</div>
+    </div>
+  </header>
+  <main>
+    <div style="padding:18px">
+      <div class="field">
+        <label>Friend's email address</label>
+        <input type="email" id="email" placeholder="friend@example.com">
+      </div>
+      <button class="btn" id="findBtn">Find & start chat</button>
+      <p class="error-msg" id="err"></p>
+    </div>
+  </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/new-chat.js"></script>
+</body></html>
