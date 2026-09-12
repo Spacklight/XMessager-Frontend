@@ -4,12 +4,15 @@ const me = getUser();
 if (!chatId) window.location.href = "home.html";
 
 let isSending = false;
+let otherUserId = null;
+let lastTypingPing = 0;
 
 async function loadThread() {
   const threadEl = document.getElementById("thread");
   try {
     const data = await social(`/api/chats/${chatId}/messages`);
     const other = data.other_user || { display_name: "User" };
+    otherUserId = other.id;
     document.getElementById("otherName").textContent = other.display_name;
 
     const wrap = document.getElementById("otherAvatarWrap");
@@ -42,14 +45,44 @@ function renderBubble(m) {
   </div>`;
 }
 
+// ---------- presence: show typing/recording/online for the other person ----------
+async function checkOtherPresence() {
+  if (!otherUserId) return;
+  const sub = document.getElementById("statusSub");
+  try {
+    const p = await social(`/api/presence/${otherUserId}`);
+    const age = Date.now() - (p.updated_at || 0);
+    if (p.status === "typing" && p.context_id === chatId && age < 8000) {
+      sub.textContent = "typing...";
+      sub.className = "status-sub typing";
+    } else if (p.status === "recording" && p.context_id === chatId && age < 8000) {
+      sub.textContent = "recording a voice note...";
+      sub.className = "status-sub typing";
+    } else if (age < 30000) {
+      sub.textContent = "online";
+      sub.className = "status-sub";
+    } else {
+      sub.textContent = "";
+    }
+  } catch (_) {}
+}
+
 document.getElementById("sendBtn").addEventListener("click", sendMessage);
 document.getElementById("msgInput").addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+document.getElementById("msgInput").addEventListener("input", () => {
+  const now = Date.now();
+  if (now - lastTypingPing > 2500) {
+    lastTypingPing = now;
+    pingPresence("typing", chatId);
+  }
+});
 
 async function sendMessage() {
   const input = document.getElementById("msgInput");
   const content = input.value.trim();
   if (!content) return;
   input.value = "";
+  pingPresence("online", null);
   try {
     await social(`/api/chats/${chatId}/messages`, { method: "POST", body: JSON.stringify({ content }) });
     loadThread();
@@ -96,6 +129,7 @@ document.getElementById("micBtn").addEventListener("click", async () => {
       stream.getTracks().forEach((t) => t.stop());
       isRecording = false;
       document.getElementById("micBtn").textContent = "🎤";
+      pingPresence("online", null);
       if (isSending) return;
       isSending = true;
       toast("Sending voice note...");
@@ -117,6 +151,7 @@ document.getElementById("micBtn").addEventListener("click", async () => {
     mediaRecorder.start();
     isRecording = true;
     document.getElementById("micBtn").textContent = "⏹";
+    pingPresence("recording", chatId);
     toast("Recording... tap again to send");
   } catch (err) {
     toast("Microphone access denied or unavailable");
@@ -125,3 +160,4 @@ document.getElementById("micBtn").addEventListener("click", async () => {
 
 loadThread();
 setInterval(loadThread, 5000);
+setInterval(checkOtherPresence, 3000);

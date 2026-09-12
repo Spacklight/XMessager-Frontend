@@ -114,6 +114,31 @@ function renderBottomNav(active) {
   ).join("")}</nav>`;
 }
 
+async function pingPresence(status, contextId) {
+  try { await social("/api/presence", { method: "POST", body: JSON.stringify({ status, context_id: contextId || null }) }); } catch (_) {}
+}
+
+async function refreshNotifBadge() {
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+  try {
+    const data = await social("/api/notifications");
+    if (data.unread_count > 0) {
+      badge.textContent = data.unread_count > 9 ? "9+" : data.unread_count;
+      badge.style.display = "flex";
+    } else {
+      badge.style.display = "none";
+    }
+  } catch (_) {}
+}
+
+if (getToken()) {
+  pingPresence("online", null);
+  setInterval(() => pingPresence("online", null), 20000);
+  refreshNotifBadge();
+  setInterval(refreshNotifBadge, 15000);
+}
+
 function toast(msg) {
   const el = document.createElement("div");
   el.className = "toast";
