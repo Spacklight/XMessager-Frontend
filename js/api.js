@@ -58,16 +58,59 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function renderVoicePlayer(url, id) {
+  return `<div class="voice-bar">
+    <button class="voice-play-btn" data-voice-id="${id}" onclick="toggleVoicePlay('${id}')">▶️</button>
+    <div class="voice-track"><div class="voice-progress" id="voice-progress-${id}"></div></div>
+    <span class="voice-time" id="voice-time-${id}">0:00</span>
+    <audio id="voice-audio-${id}" src="${url}" preload="metadata" style="display:none"></audio>
+  </div>`;
+}
+
+function fmtDuration(sec) {
+  if (!isFinite(sec) || sec < 0) sec = 0;
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function toggleVoicePlay(id) {
+  const audio = document.getElementById(`voice-audio-${id}`);
+  const btn = document.querySelector(`[data-voice-id="${id}"]`);
+  if (!audio || !btn) return;
+
+  document.querySelectorAll("audio[id^='voice-audio-']").forEach((a) => { if (a !== audio) a.pause(); });
+  document.querySelectorAll(".voice-play-btn").forEach((b) => { if (b !== btn) b.textContent = "▶️"; });
+
+  if (audio.paused) { audio.play(); btn.textContent = "⏸"; }
+  else { audio.pause(); btn.textContent = "▶️"; }
+
+  audio.ontimeupdate = () => {
+    const progress = document.getElementById(`voice-progress-${id}`);
+    const time = document.getElementById(`voice-time-${id}`);
+    if (progress && audio.duration) progress.style.width = (audio.currentTime / audio.duration) * 100 + "%";
+    if (time) time.textContent = `${fmtDuration(audio.currentTime)} / ${fmtDuration(audio.duration)}`;
+  };
+  audio.onended = () => { btn.textContent = "▶️"; };
+  audio.onloadedmetadata = () => {
+    const time = document.getElementById(`voice-time-${id}`);
+    if (time) time.textContent = `0:00 / ${fmtDuration(audio.duration)}`;
+  };
+}
+
 function renderBottomNav(active) {
+  const base = "https://raw.githubusercontent.com/Spacklight/Tunnel/main/";
   const items = [
-    { key: "home", href: "home.html", icon: "🏠", label: "Home" },
-    { key: "chats", href: "home.html#chats", icon: "💬", label: "Chats" },
-    { key: "groups", href: "groups.html", icon: "👥", label: "Groups" },
-    { key: "pages", href: "pages.html", icon: "🚩", label: "Pages" },
-    { key: "settings", href: "settings.html", icon: "⚙️", label: "Settings" },
+    { key: "home", href: "home.html", icon: base + "Home.png", label: "Home" },
+    { key: "chats", href: "home.html#chats", icon: base + "Chat.png", label: "Chats" },
+    { key: "groups", href: "groups.html", icon: base + "Group.png", label: "Groups" },
+    { key: "pages", href: "pages.html", icon: base + "Page.png", label: "Pages" },
+    { key: "settings", href: "settings.html", icon: null, label: "Settings" },
   ];
   return `<nav class="bottom">${items.map(i =>
-    `<a href="${i.href}" class="${active === i.key ? "active" : ""}"><span class="icon">${i.icon}</span>${i.label}</a>`
+    `<a href="${i.href}" class="${active === i.key ? "active" : ""}">
+      <span class="icon">${i.icon ? `<img src="${i.icon}">` : "⚙️"}</span>${i.label}
+    </a>`
   ).join("")}</nav>`;
 }
 

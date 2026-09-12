@@ -45,7 +45,7 @@ function renderBubble(m) {
   const mine = m.sender_id === me.id;
   let mediaHtml = "";
   if (m.media_url && m.media_type === "image") mediaHtml = `<img src="${m.media_url}">`;
-  if (m.media_url && m.media_type === "audio") mediaHtml = `<audio controls src="${m.media_url}" style="width:100%"></audio>`;
+  if (m.media_url && m.media_type === "audio") mediaHtml = renderVoicePlayer(m.media_url, m.id);
   return `<div class="bubble ${mine ? "mine" : "theirs"}">
     ${mediaHtml}
     ${m.content ? escapeHtml(m.content) : ""}
