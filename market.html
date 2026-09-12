@@ -24,7 +24,21 @@
   <div class="reel-wrap" id="reelWrap">
     <div class="empty" style="color:#fff">Loading videos...</div>
   </div>
+  <a href="market-upload.html" class="glass-fab">+</a>
   <div id="navSlot"></div>
+
+  <div class="sheet-overlay hidden" id="videoCommentsOverlay">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="comments-panel-video">
+        <div class="comment-list" id="videoCommentList"></div>
+        <div class="comment-input-row" style="padding:0 14px 10px">
+          <input type="text" id="videoCommentInput" placeholder="Add a comment...">
+          <button class="icon-btn" style="width:34px;height:34px" id="videoCommentSend">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <script src="js/api.js"></script>
 <script src="js/market.js"></script>

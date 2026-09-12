@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post an ad — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="thread-header">
+      <a href="market.html" class="back">←</a>
+      <div class="name">Grow your business</div>
+    </div>
+  </header>
+  <main>
+    <div class="card">
+      <div class="field">
+        <label>Category</label>
+        <select id="categorySelect">
+          <option>Fashion</option>
+          <option>Electronics</option>
+          <option>Food & Beverage</option>
+          <option>Beauty</option>
+          <option>Automotive</option>
+          <option>Real Estate</option>
+          <option>Services</option>
+          <option>Agriculture</option>
+          <option>Health</option>
+          <option>Education</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="titleInput" placeholder="e.g. Handmade leather bags">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="descInput" rows="3" placeholder="Tell people about your product or service"></textarea>
+      </div>
+      <div class="field">
+        <label>Photo or short video</label>
+        <input type="file" id="mediaInput" accept="video/*,image/*">
+      </div>
+      <div class="field">
+        <label>Post as</label>
+        <div style="display:flex;gap:16px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="radio" name="uploaderType" value="individual" checked style="width:auto"> Individual</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="radio" name="uploaderType" value="page" style="width:auto"> A page I own</label>
+        </div>
+      </div>
+      <div class="field" id="pageSelectWrap" style="display:none">
+        <label>Which page</label>
+        <select id="pageSelect"></select>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <button type="button" class="btn secondary" id="getLocationBtn">📍 Use my current location</button>
+        <div id="mapPreview" style="margin-top:8px"></div>
+      </div>
+      <div class="field">
+        <label>Location description</label>
+        <input type="text" id="locationInput" placeholder="e.g. Area 3, Lilongwe, Malawi">
+      </div>
+      <button class="btn" id="uploadBtn">Upload</button>
+      <p class="error-msg" id="uploadErr"></p>
+    </div>
+  </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/market-upload.js"></script>
+</body></html>
