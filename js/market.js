@@ -1,14 +1,14 @@
+const me = getUser();
+
 if (requireLogin()) {
   document.getElementById("logoImg").src = LOGO_URL;
   document.getElementById("navSlot").outerHTML = renderBottomNav("home");
-  const user = getUser();
   const avatarEl = document.getElementById("myAvatar");
-  if (user?.profile_picture_url) avatarEl.outerHTML = `<img class="avatar" src="${user.profile_picture_url}">`;
-  else avatarEl.textContent = initials(user?.display_name);
+  if (me?.profile_picture_url) avatarEl.outerHTML = `<img class="avatar" src="${me.profile_picture_url}">`;
+  else avatarEl.textContent = initials(me?.display_name);
   loadFeed();
 }
 
-const me = getUser();
 let currentVideoId = null;
 let videosById = {};
 
