@@ -40,7 +40,7 @@ function renderPost(p) {
   if (p.media_url) {
     if (p.media_type === "image") mediaHtml = `<img src="${p.media_url}" style="width:100%;border-radius:10px;margin-bottom:8px">`;
     else if (p.media_type === "video") mediaHtml = `<video src="${p.media_url}" controls style="width:100%;border-radius:10px;margin-bottom:8px"></video>`;
-    else if (p.media_type === "audio") mediaHtml = `<audio src="${p.media_url}" controls style="width:100%;margin-bottom:8px"></audio>`;
+    else if (p.media_type === "audio") mediaHtml = renderVoicePlayer(p.media_url, p.id);
     else if (p.media_type === "pdf") mediaHtml = `<a href="${p.media_url}" target="_blank" class="btn secondary" style="margin-bottom:8px;display:block">📄 View PDF attachment</a>`;
   }
   return `<div class="card" data-post-id="${p.id}">
