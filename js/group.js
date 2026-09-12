@@ -7,8 +7,19 @@ async function loadThread() {
   const threadEl = document.getElementById("thread");
   try {
     const data = await social(`/api/groups/${groupId}/messages`);
-    document.getElementById("groupName").textContent = data.group.name;
-    document.getElementById("groupAvatar").textContent = initials(data.group.name);
+    const group = data.group;
+    document.getElementById("groupName").textContent = group.name;
+
+    const wrap = document.getElementById("groupAvatarWrap");
+    wrap.innerHTML = group.picture_url
+      ? `<img class="avatar" src="${group.picture_url}">`
+      : `<div class="avatar">${initials(group.name)}</div>`;
+
+    const settingsLink = document.getElementById("settingsLink");
+    if (group.owner_id === me.id) {
+      settingsLink.style.display = "inline";
+      settingsLink.href = "group-settings.html?id=" + groupId;
+    }
 
     if (!data.messages.length) {
       threadEl.innerHTML = `<div class="empty">No messages yet. Be the first to say something.</div>`;
@@ -16,9 +27,17 @@ async function loadThread() {
       threadEl.innerHTML = data.messages.map(renderBubble).join("");
     }
     threadEl.scrollTop = threadEl.scrollHeight;
+
+    const composer = document.getElementById("composer");
+    if (!group.posts_enabled || (group.post_permission === "owner_only" && group.owner_id !== me.id)) {
+      composer.style.display = "none";
+    } else {
+      composer.style.display = "flex";
+    }
   } catch (err) {
-    threadEl.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
-    document.getElementById("composer").style.display = "none";
+    if (!threadEl.querySelector(".bubble")) {
+      threadEl.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
+    }
   }
 }
 
@@ -26,6 +45,7 @@ function renderBubble(m) {
   const mine = m.sender_id === me.id;
   let mediaHtml = "";
   if (m.media_url && m.media_type === "image") mediaHtml = `<img src="${m.media_url}">`;
+  if (m.media_url && m.media_type === "audio") mediaHtml = `<audio controls src="${m.media_url}" style="width:100%"></audio>`;
   return `<div class="bubble ${mine ? "mine" : "theirs"}">
     ${mediaHtml}
     ${m.content ? escapeHtml(m.content) : ""}

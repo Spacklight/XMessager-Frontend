@@ -14,8 +14,13 @@ async function loadPages() {
     }
     list.innerHTML = data.pages.map(p => `
       <div class="card">
-        <h3>${escapeHtml(p.name)}</h3>
-        <p>${escapeHtml(p.description || "")}</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${p.profile_picture_url ? `<img class="avatar" src="${p.profile_picture_url}">` : `<div class="avatar">${initials(p.name)}</div>`}
+          <div>
+            <h3 style="margin:0">${escapeHtml(p.name)}</h3>
+            <p style="margin:2px 0 0">${escapeHtml(p.description || "")}</p>
+          </div>
+        </div>
         <div class="row">
           <span class="tag">${p.country || p.continent || "Global"}</span>
           <button class="btn" style="width:auto;padding:8px 16px" onclick="followPage('${p.id}')">Follow</button>

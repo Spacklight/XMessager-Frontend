@@ -48,7 +48,7 @@ async function loadHome() {
     } else {
       html += groupsRes.groups.map(g => `
         <a class="list-row" href="group.html?id=${g.id}">
-          ${avatarHtml(null, g.name)}
+          ${avatarHtml(g.picture_url, g.name)}
           <div class="meta">
             <div class="name">${escapeHtml(g.name)}</div>
             <div class="preview">${escapeHtml(g.last_message || "No messages yet")}</div>

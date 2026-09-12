@@ -14,8 +14,13 @@ async function loadGroups() {
     }
     list.innerHTML = data.groups.map(g => `
       <div class="card">
-        <h3>${escapeHtml(g.name)}</h3>
-        <p>${escapeHtml(g.description || "")}</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${g.picture_url ? `<img class="avatar" src="${g.picture_url}">` : `<div class="avatar">${initials(g.name)}</div>`}
+          <div>
+            <h3 style="margin:0">${escapeHtml(g.name)}</h3>
+            <p style="margin:2px 0 0">${escapeHtml(g.description || "")}</p>
+          </div>
+        </div>
         <div class="row">
           <span class="tag">${g.country || g.continent || "Global"}</span>
           <button class="btn" style="width:auto;padding:8px 16px" onclick="joinGroup('${g.id}')">Join</button>

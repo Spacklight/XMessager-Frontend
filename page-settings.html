@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page settings — XMessager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="thread-header">
+      <a href="#" id="backLink" class="back">←</a>
+      <div class="name">Page settings</div>
+    </div>
+  </header>
+  <main>
+    <div class="card" style="text-align:center;padding:24px 14px">
+      <div style="position:relative;display:inline-block">
+        <div class="avatar avatar-lg" id="pageAvatar" style="margin:0 auto 12px">?</div>
+        <label for="picInput" style="position:absolute;bottom:8px;right:-6px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;border:2px solid var(--bg-card)">📷</label>
+        <input type="file" id="picInput" accept="image/*" hidden>
+      </div>
+    </div>
+    <div class="card">
+      <div class="field"><label>Page name</label><input type="text" id="nameInput"></div>
+      <div class="field"><label>Description</label><textarea id="descInput" rows="2"></textarea></div>
+      <div class="field">
+        <label>Visibility</label>
+        <select id="visibilityInput">
+          <option value="public">Public — anyone can follow</option>
+          <option value="private">Private — invite only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Who can post</label>
+        <select id="permissionInput">
+          <option value="owner_only">Only me (the owner)</option>
+          <option value="followers">Any follower</option>
+        </select>
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="enabledInput" style="width:auto">
+        <label style="margin:0">Allow posting on this page</label>
+      </div>
+      <button class="btn" id="saveBtn">Save changes</button>
+      <p class="error-msg" id="saveErr"></p>
+    </div>
+    <div class="card">
+      <button class="btn danger" id="deleteBtn">Delete this page</button>
+    </div>
+  </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/page-settings.js"></script>
+</body></html>
