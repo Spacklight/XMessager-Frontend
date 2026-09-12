@@ -15,10 +15,26 @@
   </header>
   <main>
     <div class="card" style="text-align:center;padding:24px 14px">
-      <div class="avatar avatar-lg" id="profAvatar" style="margin:0 auto 12px">?</div>
-      <h3 id="profName">—</h3>
-      <p id="profEmail">—</p>
-      <p id="profLocation" style="margin-top:6px"></p>
+      <div style="position:relative;display:inline-block">
+        <div class="avatar avatar-lg" id="profAvatar" style="margin:0 auto 12px">?</div>
+        <label for="picInput" style="position:absolute;bottom:8px;right:-6px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;border:2px solid var(--bg-card)">📷</label>
+        <input type="file" id="picInput" accept="image/*" hidden>
+      </div>
+      <p id="profEmail" style="margin-top:6px">—</p>
+      <p id="profLocation"></p>
+    </div>
+    <div class="card">
+      <h3>Edit profile</h3>
+      <div class="field" style="margin-top:10px">
+        <label>Display name</label>
+        <input type="text" id="nameInput" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label>Bio</label>
+        <textarea id="bioInput" rows="3" placeholder="Tell people a bit about yourself"></textarea>
+      </div>
+      <button class="btn" id="saveBtn">Save changes</button>
+      <p class="error-msg" id="saveErr"></p>
     </div>
     <div class="card">
       <button class="btn danger" id="logoutBtn">Log out</button>

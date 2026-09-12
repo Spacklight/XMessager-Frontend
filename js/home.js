@@ -7,6 +7,10 @@ if (requireLogin()) {
   else avatarEl.textContent = initials(user?.display_name);
 
   loadHome();
+
+  const overlay = document.getElementById("sheetOverlay");
+  document.getElementById("fabBtn").addEventListener("click", () => overlay.classList.remove("hidden"));
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.add("hidden"); });
 }
 
 async function loadHome() {

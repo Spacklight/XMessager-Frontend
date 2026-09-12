@@ -289,3 +289,31 @@ nav.bottom .icon { font-size: 1.25rem; display: block; margin-bottom: 2px; }
   font-size: .85rem;
   z-index: 50;
 }
+
+.sheet-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 40;
+}
+.sheet-overlay.hidden { display: none; }
+.sheet {
+  width: 100%; max-width: var(--max-width);
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 14px 26px;
+}
+.sheet .handle { width: 40px; height: 4px; background: var(--border); border-radius: 999px; margin: 6px auto 14px; }
+.sheet-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.sheet-option:last-child { border-bottom: none; }
+.sheet-option .ico {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(166,112,46,.12); color: var(--accent-dark);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.sheet-option .txt strong { display: block; font-size: .95rem; }
+.sheet-option .txt span { color: var(--text-muted); font-size: .8rem; }

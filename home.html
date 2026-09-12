@@ -23,8 +23,26 @@
     <div class="empty">Loading...</div>
   </main>
 
-  <a href="groups.html" class="fab">+</a>
+  <button class="fab" id="fabBtn" style="border:2px solid var(--accent);background:var(--white)">+</button>
   <div id="navSlot"></div>
+
+  <div class="sheet-overlay hidden" id="sheetOverlay">
+    <div class="sheet">
+      <div class="handle"></div>
+      <a class="sheet-option" href="new-chat.html">
+        <div class="ico">💬</div>
+        <div class="txt"><strong>New chat</strong><span>Message a friend by their email</span></div>
+      </a>
+      <a class="sheet-option" href="groups.html">
+        <div class="ico">👥</div>
+        <div class="txt"><strong>Create or join a group</strong><span>Find public groups or start your own</span></div>
+      </a>
+      <a class="sheet-option" href="pages.html">
+        <div class="ico">🚩</div>
+        <div class="txt"><strong>Create or join a page</strong><span>Follow public pages or start your own</span></div>
+      </a>
+    </div>
+  </div>
 </div>
 <script src="js/api.js"></script>
 <script src="js/home.js"></script>
