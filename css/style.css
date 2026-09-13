@@ -249,7 +249,7 @@ nav.bottom .icon { font-size: 1.25rem; display: block; margin-bottom: 2px; }
 /* Market (video feed) */
 .reel-wrap { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; }
 .reel {
-  height: calc(100vh - 0px);
+  height: 100%;
   scroll-snap-align: start;
   position: relative;
   background: #000;
@@ -257,12 +257,22 @@ nav.bottom .icon { font-size: 1.25rem; display: block; margin-bottom: 2px; }
   align-items: flex-end;
 }
 .reel video { width: 100%; height: 100%; object-fit: cover; }
-.reel .info { position: absolute; left: 16px; bottom: 90px; right: 90px; color: var(--white); }
+.reel .info { position: absolute; left: 16px; bottom: 106px; right: 90px; color: var(--white); }
 .reel .info h3 { margin: 0 0 4px; font-size: 1.05rem; }
 .reel .info p { margin: 0; font-size: .85rem; opacity: .9; }
-.reel .side { position: absolute; right: 14px; bottom: 90px; display: flex; flex-direction: column; gap: 18px; align-items: center; }
-.reel .side .stat { color: var(--white); text-align: center; font-size: .72rem; }
-.reel .side .stat .ico { font-size: 1.5rem; display: block; }
+.reel .side { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.side-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.side-btn {
+  background: rgba(255,255,255,.92); border: none; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent-dark);
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.side-btn svg { width: 24px; height: 24px; }
+.side-btn.active svg { fill: var(--danger); stroke: var(--danger); }
+.side-count { color: #fff; font-size: .72rem; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.stats-link { color: #fff; font-size: 1.2rem; text-decoration: none; }
 
 /* Cards */
 .card {
@@ -373,20 +383,6 @@ nav.bottom a:not(.active) .icon img { opacity: .55; }
 .status-sub { font-size: .72rem; color: rgba(255,255,255,.75); margin-top: 1px; }
 .status-sub.typing { color: #ffd27a; font-style: italic; }
 
-/* Market reel redesign */
-.reel .info { left: 16px; right: 90px; bottom: 106px; }
-.reel .side {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  display: flex; flex-direction: column; gap: 20px; align-items: center;
-}
-.side-btn {
-  background: rgba(0,0,0,.35); border: none; color: #fff;
-  width: 46px; height: 46px; border-radius: 50%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  font-size: 1.1rem; cursor: pointer;
-}
-.side-btn span { font-size: .6rem; margin-top: 2px; }
-.side-btn.active { background: var(--danger); }
 .uploader-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 .follow-btn {
   background: var(--accent); color: #fff; border: none;
@@ -430,16 +426,3 @@ nav.bottom a:not(.active) .icon img { opacity: .55; }
 @keyframes recPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
 /* ---------- TikTok-style Market side icons ---------- */
-.reel .side { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 22px; align-items: center; }
-.side-btn { background: none; border: none; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; padding: 0; text-shadow: 0 1px 5px rgba(0,0,0,.6); }
-.side-btn span { font-size: .72rem; font-weight: 700; margin-top: 2px; text-shadow: 0 1px 5px rgba(0,0,0,.6); }
-.side-btn.active { color: var(--danger); }
-.side-avatar-wrap { position: relative; margin-bottom: 4px; }
-.side-avatar-wrap .avatar { width: 46px; height: 46px; border: 2px solid #fff; }
-.side-follow-badge {
-  position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--danger); color: #fff; font-size: .95rem; font-weight: 700; line-height: 1;
-  display: flex; align-items: center; justify-content: center; border: 2px solid #fff; cursor: pointer;
-}
-.side-follow-badge.following { background: var(--success); }

@@ -12,6 +12,13 @@ if (requireLogin()) {
 let currentVideoId = null;
 let videosById = {};
 
+const ICONS = {
+  heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 4 14.2 4 9.2C4 6.3 6.3 4 9.2 4C10.7 4 12 4.9 12 4.9C12 4.9 13.3 4 14.8 4C17.7 4 20 6.3 20 9.2C20 14.2 12 21 12 21Z"/></svg>`,
+  comment: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v13H8l-5 5V4z"/><line x1="6.5" y1="8" x2="17.5" y2="8"/><line x1="6.5" y1="11.5" x2="17.5" y2="11.5"/><line x1="6.5" y1="15" x2="14" y2="15"/></svg>`,
+  bookmark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>`,
+  share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><line x1="8.3" y1="10.5" x2="15.5" y2="6.5"/><line x1="8.3" y1="13.5" x2="15.5" y2="17.5"/></svg>`,
+};
+
 async function loadFeed() {
   const wrap = document.getElementById("reelWrap");
   try {
@@ -35,20 +42,31 @@ function renderReel(v) {
   return `<div class="reel">
     <video src="${v.url}" loop muted playsinline preload="metadata"></video>
     <div class="info">
-      <div class="uploader-row"><strong>${escapeHtml(displayName)}</strong></div>
+      <div class="uploader-row">
+        <strong>${escapeHtml(displayName)}</strong>
+        <button class="follow-btn" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">Follow</button>
+      </div>
       <h3 style="margin:0 0 4px">${escapeHtml(v.title)}${v.viral ? " 🔥" : ""}</h3>
       <p style="margin:0">${escapeHtml(v.description || "")}</p>
       ${v.location_description ? `<p class="loc">📍 ${escapeHtml(v.location_description)}</p>` : ""}
     </div>
     <div class="side">
-      <div class="side-avatar-wrap">
-        <div class="avatar">${initials(displayName)}</div>
-        <div class="side-follow-badge" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">+</div>
+      <div class="side-item">
+        <button class="side-btn ${v.liked_by_me ? "active" : ""}" id="like-${v.id}" onclick="toggleLike('${v.id}')">${ICONS.heart}</button>
+        <span class="side-count" id="like-count-${v.id}">${fmtCount(v.like_count)}</span>
       </div>
-      <button class="side-btn ${v.liked_by_me ? "active" : ""}" id="like-${v.id}" onclick="toggleLike('${v.id}')">❤️<span id="like-count-${v.id}">${fmtCount(v.like_count)}</span></button>
-      <button class="side-btn" onclick="openComments('${v.id}')">💬<span>${fmtCount(v.comment_count)}</span></button>
-      <button class="side-btn ${v.saved_by_me ? "active" : ""}" id="save-${v.id}" onclick="toggleSave('${v.id}')">🔖<span id="save-count-${v.id}">${fmtCount(v.save_count)}</span></button>
-      <button class="side-btn" onclick="shareVideo('${v.id}')">↗️<span id="share-count-${v.id}">${fmtCount(v.share_count)}</span></button>
+      <div class="side-item">
+        <button class="side-btn" onclick="openComments('${v.id}')">${ICONS.comment}</button>
+        <span class="side-count">${fmtCount(v.comment_count)}</span>
+      </div>
+      <div class="side-item">
+        <button class="side-btn ${v.saved_by_me ? "active" : ""}" id="save-${v.id}" onclick="toggleSave('${v.id}')">${ICONS.bookmark}</button>
+        <span class="side-count" id="save-count-${v.id}">${fmtCount(v.save_count)}</span>
+      </div>
+      <div class="side-item">
+        <button class="side-btn" onclick="shareVideo('${v.id}')">${ICONS.share}</button>
+        <span class="side-count" id="share-count-${v.id}">${fmtCount(v.share_count)}</span>
+      </div>
     </div>
   </div>`;
 }
@@ -96,9 +114,9 @@ async function toggleFollow(id) {
       method: "POST",
       body: JSON.stringify({ followed_type: followedType, followed_id: followedId, follower_user_id: me.id }),
     });
-    const badge = document.getElementById(`follow-${id}`);
-    badge.textContent = res.following ? "✓" : "+";
-    badge.classList.toggle("following", res.following);
+    const btn = document.getElementById(`follow-${id}`);
+    btn.textContent = res.following ? "Following" : "Follow";
+    btn.classList.toggle("following", res.following);
   } catch (err) {
     toast(err.message);
   }
