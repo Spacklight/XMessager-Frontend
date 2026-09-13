@@ -456,3 +456,16 @@ main, .reel-wrap { animation: xmfadein .35s ease; }
   background: rgba(0,0,0,.45); border: none; color: #fff;
   font-size: 1.1rem; display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
+
+/* ---------- Per-video loading shimmer ---------- */
+.video-shimmer {
+  position: absolute; inset: 0; z-index: 3;
+  background: linear-gradient(110deg, #1a1a1a 30%, #2e2e2e 50%, #1a1a1a 70%);
+  background-size: 200% 100%;
+  animation: xmshimmer 1.4s ease-in-out infinite;
+  transition: opacity .25s ease;
+}
+.video-shimmer.shimmer-hidden { opacity: 0; pointer-events: none; }
+@keyframes xmshimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.voice-play-btn:disabled { opacity: .7; cursor: default; }

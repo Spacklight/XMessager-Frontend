@@ -56,13 +56,14 @@ function waitFirstVideoReady() {
 
 function renderReel(v) {
   const displayName = v.uploader_type === "page" ? (v.page_name || "Page") : (v.uploader || "Individual");
-  return `<div class="reel">
+  return `<div class="reel" data-video-id="${v.id}">
+    <div class="video-shimmer" id="shimmer-${v.id}"></div>
     <video src="${v.url}" loop playsinline preload="metadata" muted></video>
     <button class="mute-toggle" onclick="toggleSound()">${soundEnabled ? "🔊" : "🔇"}</button>
     <div class="info">
       <div class="uploader-row">
         <strong>${escapeHtml(displayName)}</strong>
-        <button class="follow-btn" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">Follow</button>
+        <button class="follow-btn ${v.is_following ? "following" : ""}" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">${v.is_following ? "Following" : "Follow"}</button>
       </div>
       <h3 style="margin:0 0 4px">${escapeHtml(v.title)}${v.viral ? " 🔥" : ""}</h3>
       <p style="margin:0">${escapeHtml(v.description || "")}</p>
@@ -187,6 +188,23 @@ function setupAutoplay(videos) {
   const wrap = document.getElementById("reelWrap");
   const reels = [...wrap.querySelectorAll(".reel")];
   const counted = new Set();
+
+  reels.forEach((reel) => {
+    const video = reel.querySelector("video");
+    const shimmer = reel.querySelector(".video-shimmer");
+
+    const hideShimmer = () => { shimmer.classList.add("shimmer-hidden"); };
+    if (video.readyState >= 3) hideShimmer();
+    video.addEventListener("canplay", hideShimmer);
+    video.addEventListener("waiting", () => shimmer.classList.remove("shimmer-hidden"));
+    video.addEventListener("playing", hideShimmer);
+
+    // Tap the video to pause/resume manually.
+    video.addEventListener("click", () => {
+      if (video.paused) video.play().catch(() => {});
+      else video.pause();
+    });
+  });
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

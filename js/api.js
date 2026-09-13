@@ -94,25 +94,35 @@ function toggleVoicePlay(id) {
   const time = document.getElementById(`voice-time-${id}`);
   if (!audio || !btn) return;
 
+  // Wire real media events once — the icon only ever reflects what the
+  // audio element is actually doing, never what we hope it's about to do.
+  if (!audio.dataset.wired) {
+    audio.dataset.wired = "1";
+    audio.addEventListener("waiting", () => { btn.textContent = "⏳"; btn.disabled = true; });
+    audio.addEventListener("playing", () => { btn.textContent = "❚❚"; btn.disabled = false; });
+    audio.addEventListener("pause", () => { btn.textContent = "▶"; btn.disabled = false; });
+    audio.addEventListener("ended", () => {
+      if (progress) progress.style.clipPath = "inset(0 100% 0 0)";
+      if (time) time.textContent = fmtDuration(audio.duration);
+    });
+    audio.addEventListener("timeupdate", () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progress) progress.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+      if (time) time.textContent = fmtDuration(audio.currentTime);
+    });
+    audio.addEventListener("loadedmetadata", () => {
+      if (time && audio.paused) time.textContent = fmtDuration(audio.duration);
+    });
+  }
+
   document.querySelectorAll("audio[id^='voice-audio-']").forEach((a) => { if (a !== audio) a.pause(); });
-  document.querySelectorAll(".voice-play-btn").forEach((b) => { if (b !== btn) b.textContent = "▶"; });
 
-  if (audio.paused) { audio.play(); btn.textContent = "❚❚"; }
-  else { audio.pause(); btn.textContent = "▶"; }
-
-  audio.ontimeupdate = () => {
-    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
-    if (progress) progress.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
-    if (time) time.textContent = fmtDuration(audio.currentTime);
-  };
-  audio.onended = () => {
-    btn.textContent = "▶";
-    if (progress) progress.style.clipPath = "inset(0 100% 0 0)";
-    if (time) time.textContent = fmtDuration(audio.duration);
-  };
-  audio.onloadedmetadata = () => {
-    if (time && audio.paused) time.textContent = fmtDuration(audio.duration);
-  };
+  if (audio.paused) {
+    if (audio.readyState < 3) { btn.textContent = "⏳"; btn.disabled = true; }
+    audio.play().catch(() => { btn.textContent = "▶"; btn.disabled = false; });
+  } else {
+    audio.pause();
+  }
 }
 
 function renderBottomNav(active) {

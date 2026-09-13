@@ -1,6 +1,5 @@
 requireLogin();
 const me = getUser();
-let selectedLat = null, selectedLng = null;
 
 document.querySelectorAll('input[name="uploaderType"]').forEach((radio) => {
   radio.addEventListener("change", async (e) => {
@@ -23,21 +22,6 @@ document.querySelectorAll('input[name="uploaderType"]').forEach((radio) => {
   });
 });
 
-document.getElementById("getLocationBtn").addEventListener("click", () => {
-  if (!navigator.geolocation) { toast("Geolocation not supported on this device"); return; }
-  toast("Getting your location...");
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      selectedLat = pos.coords.latitude;
-      selectedLng = pos.coords.longitude;
-      const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${selectedLat},${selectedLng}&zoom=14&size=400x200&markers=${selectedLat},${selectedLng},red-pushpin`;
-      document.getElementById("mapPreview").innerHTML = `<img src="${mapUrl}" style="width:100%;border-radius:10px">`;
-      toast("Location captured");
-    },
-    (err) => toast("Could not get location: " + err.message)
-  );
-});
-
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const errEl = document.getElementById("uploadErr");
   errEl.textContent = "";
@@ -46,7 +30,6 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   const description = document.getElementById("descInput").value.trim();
   const file = document.getElementById("mediaInput").files[0];
   const uploaderType = document.querySelector('input[name="uploaderType"]:checked').value;
-  const locationDescription = document.getElementById("locationInput").value.trim();
 
   if (!title || !file) { errEl.textContent = "Title and a photo/video are required."; return; }
 
@@ -73,12 +56,9 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
     form.append("uploader_user_id", me.id);
     if (pageId) form.append("page_id", pageId);
     if (pageName) form.append("page_name", pageName);
-    if (locationDescription) form.append("location_description", locationDescription);
-    if (selectedLat != null) form.append("location_lat", selectedLat);
-    if (selectedLng != null) form.append("location_lng", selectedLng);
 
     await brain("/api/upload", { method: "POST", body: form });
-    toast("Your ad is live!");
+    toast("Upload successful");
     window.location.href = "market.html";
   } catch (err) {
     errEl.textContent = err.message;
