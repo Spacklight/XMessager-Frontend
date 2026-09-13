@@ -58,10 +58,16 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+const VOICE_BAR_HEIGHTS = [40,70,30,90,50,80,35,60,45,75,55,20,65,85,40,30,70,50,90,35,60,45,25,80];
+
 function renderVoicePlayer(url, id) {
+  const bars = VOICE_BAR_HEIGHTS.map(h => `<span style="height:${h}%"></span>`).join("");
   return `<div class="voice-bar">
-    <button class="voice-play-btn" data-voice-id="${id}" onclick="toggleVoicePlay('${id}')">▶️</button>
-    <div class="voice-track"><div class="voice-progress" id="voice-progress-${id}"></div></div>
+    <button class="voice-play-btn" data-voice-id="${id}" onclick="toggleVoicePlay('${id}')">▶</button>
+    <div class="voice-wave">
+      <div class="voice-wave-base">${bars}</div>
+      <div class="voice-wave-progress" id="voice-progress-${id}">${bars}</div>
+    </div>
     <span class="voice-time" id="voice-time-${id}">0:00</span>
     <audio id="voice-audio-${id}" src="${url}" preload="metadata" style="display:none"></audio>
   </div>`;
@@ -74,27 +80,38 @@ function fmtDuration(sec) {
   return `${m}:${s}`;
 }
 
+function fmtCount(n) {
+  n = n || 0;
+  if (n < 1000) return String(n);
+  if (n < 1000000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+  return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+}
+
 function toggleVoicePlay(id) {
   const audio = document.getElementById(`voice-audio-${id}`);
   const btn = document.querySelector(`[data-voice-id="${id}"]`);
+  const progress = document.getElementById(`voice-progress-${id}`);
+  const time = document.getElementById(`voice-time-${id}`);
   if (!audio || !btn) return;
 
   document.querySelectorAll("audio[id^='voice-audio-']").forEach((a) => { if (a !== audio) a.pause(); });
-  document.querySelectorAll(".voice-play-btn").forEach((b) => { if (b !== btn) b.textContent = "▶️"; });
+  document.querySelectorAll(".voice-play-btn").forEach((b) => { if (b !== btn) b.textContent = "▶"; });
 
-  if (audio.paused) { audio.play(); btn.textContent = "⏸"; }
-  else { audio.pause(); btn.textContent = "▶️"; }
+  if (audio.paused) { audio.play(); btn.textContent = "❚❚"; }
+  else { audio.pause(); btn.textContent = "▶"; }
 
   audio.ontimeupdate = () => {
-    const progress = document.getElementById(`voice-progress-${id}`);
-    const time = document.getElementById(`voice-time-${id}`);
-    if (progress && audio.duration) progress.style.width = (audio.currentTime / audio.duration) * 100 + "%";
-    if (time) time.textContent = `${fmtDuration(audio.currentTime)} / ${fmtDuration(audio.duration)}`;
+    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    if (progress) progress.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    if (time) time.textContent = fmtDuration(audio.currentTime);
   };
-  audio.onended = () => { btn.textContent = "▶️"; };
+  audio.onended = () => {
+    btn.textContent = "▶";
+    if (progress) progress.style.clipPath = "inset(0 100% 0 0)";
+    if (time) time.textContent = fmtDuration(audio.duration);
+  };
   audio.onloadedmetadata = () => {
-    const time = document.getElementById(`voice-time-${id}`);
-    if (time) time.textContent = `0:00 / ${fmtDuration(audio.duration)}`;
+    if (time && audio.paused) time.textContent = fmtDuration(audio.duration);
   };
 }
 

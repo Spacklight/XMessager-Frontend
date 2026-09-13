@@ -35,19 +35,20 @@ function renderReel(v) {
   return `<div class="reel">
     <video src="${v.url}" loop muted playsinline preload="metadata"></video>
     <div class="info">
-      <div class="uploader-row">
-        <strong>${escapeHtml(displayName)}</strong>
-        <button class="follow-btn" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">Follow</button>
-      </div>
+      <div class="uploader-row"><strong>${escapeHtml(displayName)}</strong></div>
       <h3 style="margin:0 0 4px">${escapeHtml(v.title)}${v.viral ? " 🔥" : ""}</h3>
       <p style="margin:0">${escapeHtml(v.description || "")}</p>
       ${v.location_description ? `<p class="loc">📍 ${escapeHtml(v.location_description)}</p>` : ""}
     </div>
     <div class="side">
-      <button class="side-btn ${v.liked_by_me ? "active" : ""}" id="like-${v.id}" onclick="toggleLike('${v.id}')">❤️<span id="like-count-${v.id}">${v.like_count || 0}</span></button>
-      <button class="side-btn" onclick="openComments('${v.id}')">💬<span>${v.comment_count || 0}</span></button>
-      <button class="side-btn ${v.saved_by_me ? "active" : ""}" id="save-${v.id}" onclick="toggleSave('${v.id}')">🔖<span id="save-count-${v.id}">${v.save_count || 0}</span></button>
-      <button class="side-btn" onclick="shareVideo('${v.id}')">↗️<span id="share-count-${v.id}">${v.share_count || 0}</span></button>
+      <div class="side-avatar-wrap">
+        <div class="avatar">${initials(displayName)}</div>
+        <div class="side-follow-badge" id="follow-${v.id}" onclick="toggleFollow('${v.id}')">+</div>
+      </div>
+      <button class="side-btn ${v.liked_by_me ? "active" : ""}" id="like-${v.id}" onclick="toggleLike('${v.id}')">❤️<span id="like-count-${v.id}">${fmtCount(v.like_count)}</span></button>
+      <button class="side-btn" onclick="openComments('${v.id}')">💬<span>${fmtCount(v.comment_count)}</span></button>
+      <button class="side-btn ${v.saved_by_me ? "active" : ""}" id="save-${v.id}" onclick="toggleSave('${v.id}')">🔖<span id="save-count-${v.id}">${fmtCount(v.save_count)}</span></button>
+      <button class="side-btn" onclick="shareVideo('${v.id}')">↗️<span id="share-count-${v.id}">${fmtCount(v.share_count)}</span></button>
     </div>
   </div>`;
 }
@@ -56,7 +57,7 @@ async function toggleLike(id) {
   try {
     const res = await brain(`/api/videos/${id}/like`, { method: "POST", body: JSON.stringify({ user_id: me.id }) });
     document.getElementById(`like-${id}`).classList.toggle("active", res.liked);
-    document.getElementById(`like-count-${id}`).textContent = res.like_count;
+    document.getElementById(`like-count-${id}`).textContent = fmtCount(res.like_count);
   } catch (err) {
     toast(err.message);
   }
@@ -66,7 +67,7 @@ async function toggleSave(id) {
   try {
     const res = await brain(`/api/videos/${id}/save`, { method: "POST", body: JSON.stringify({ user_id: me.id }) });
     document.getElementById(`save-${id}`).classList.toggle("active", res.saved);
-    document.getElementById(`save-count-${id}`).textContent = res.save_count;
+    document.getElementById(`save-count-${id}`).textContent = fmtCount(res.save_count);
   } catch (err) {
     toast(err.message);
   }
@@ -75,8 +76,9 @@ async function toggleSave(id) {
 async function shareVideo(id) {
   try {
     await brain(`/api/videos/${id}/share`, { method: "POST" });
-    const el = document.getElementById(`share-count-${id}`);
-    el.textContent = parseInt(el.textContent, 10) + 1;
+    const v = videosById[id];
+    if (v) v.share_count = (v.share_count || 0) + 1;
+    document.getElementById(`share-count-${id}`).textContent = fmtCount(v ? v.share_count : 1);
     toast("Shared!");
   } catch (err) {
     toast(err.message);
@@ -94,9 +96,9 @@ async function toggleFollow(id) {
       method: "POST",
       body: JSON.stringify({ followed_type: followedType, followed_id: followedId, follower_user_id: me.id }),
     });
-    const btn = document.getElementById(`follow-${id}`);
-    btn.textContent = res.following ? "Following" : "Follow";
-    btn.classList.toggle("following", res.following);
+    const badge = document.getElementById(`follow-${id}`);
+    badge.textContent = res.following ? "✓" : "+";
+    badge.classList.toggle("following", res.following);
   } catch (err) {
     toast(err.message);
   }

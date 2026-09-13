@@ -3,9 +3,9 @@ const chatId = new URLSearchParams(window.location.search).get("id");
 const me = getUser();
 if (!chatId) window.location.href = "home.html";
 
-let isSending = false;
 let otherUserId = null;
 let lastTypingPing = 0;
+let lastMessageSignature = null;
 
 async function loadThread() {
   const threadEl = document.getElementById("thread");
@@ -20,12 +20,18 @@ async function loadThread() {
       ? `<img class="avatar" src="${other.profile_picture_url}">`
       : `<div class="avatar">${initials(other.display_name)}</div>`;
 
-    if (!data.messages.length) {
-      threadEl.innerHTML = `<div class="empty">No messages yet. Say hello 👋</div>`;
-    } else {
-      threadEl.innerHTML = data.messages.map(renderBubble).join("");
+    // Only touch the message list DOM when it actually changed — replacing it
+    // on every poll would kill any voice note currently playing.
+    const signature = data.messages.map((m) => m.id).join(",");
+    if (signature !== lastMessageSignature) {
+      lastMessageSignature = signature;
+      if (!data.messages.length) {
+        threadEl.innerHTML = `<div class="empty">No messages yet. Say hello 👋</div>`;
+      } else {
+        threadEl.innerHTML = data.messages.map(renderBubble).join("");
+      }
+      threadEl.scrollTop = threadEl.scrollHeight;
     }
-    threadEl.scrollTop = threadEl.scrollHeight;
   } catch (err) {
     if (!threadEl.querySelector(".bubble")) {
       threadEl.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
@@ -45,7 +51,6 @@ function renderBubble(m) {
   </div>`;
 }
 
-// ---------- presence: show typing/recording/online for the other person ----------
 async function checkOtherPresence() {
   if (!otherUserId) return;
   const sub = document.getElementById("statusSub");
@@ -110,28 +115,40 @@ document.getElementById("fileInput").addEventListener("change", async (e) => {
   e.target.value = "";
 });
 
-// ---------- voice notes ----------
+// ---------- voice notes (WhatsApp-style recording bar) ----------
 let mediaRecorder = null;
 let recordedChunks = [];
 let isRecording = false;
+let recordingCancelled = false;
+let recordingStartTime = null;
+let recordingTimerInterval = null;
 
-document.getElementById("micBtn").addEventListener("click", async () => {
-  if (isRecording) {
-    mediaRecorder.stop();
-    return;
-  }
+document.getElementById("micBtn").addEventListener("click", startRecording);
+document.getElementById("cancelRecordBtn").addEventListener("click", () => {
+  recordingCancelled = true;
+  mediaRecorder.stop();
+});
+document.getElementById("stopSendBtn").addEventListener("click", () => {
+  recordingCancelled = false;
+  mediaRecorder.stop();
+});
+
+async function startRecording() {
+  if (isRecording) return;
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     recordedChunks = [];
+    recordingCancelled = false;
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
+      clearInterval(recordingTimerInterval);
       isRecording = false;
-      document.getElementById("micBtn").textContent = "🎤";
+      document.getElementById("composerNormal").style.display = "flex";
+      document.getElementById("composerRecording").style.display = "none";
       pingPresence("online", null);
-      if (isSending) return;
-      isSending = true;
+      if (recordingCancelled) return;
       toast("Sending voice note...");
       try {
         const blob = new Blob(recordedChunks, { type: "audio/webm" });
@@ -146,17 +163,22 @@ document.getElementById("micBtn").addEventListener("click", async () => {
       } catch (err) {
         toast(err.message);
       }
-      isSending = false;
     };
     mediaRecorder.start();
     isRecording = true;
-    document.getElementById("micBtn").textContent = "⏹";
+    recordingStartTime = Date.now();
+    document.getElementById("composerNormal").style.display = "none";
+    document.getElementById("composerRecording").style.display = "flex";
+    document.getElementById("recTimer").textContent = "0:00";
+    recordingTimerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - recordingStartTime) / 1000);
+      document.getElementById("recTimer").textContent = fmtDuration(secs);
+    }, 500);
     pingPresence("recording", chatId);
-    toast("Recording... tap again to send");
   } catch (err) {
     toast("Microphone access denied or unavailable");
   }
-});
+}
 
 loadThread();
 setInterval(loadThread, 5000);

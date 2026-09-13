@@ -408,3 +408,38 @@ nav.bottom a:not(.active) .icon img { opacity: .55; }
 @media (max-width: 480px) { .glass-fab { right: 20px; } }
 
 .comments-panel-video .comment-list { max-height: 40vh; overflow-y: auto; padding: 14px; }
+
+/* ---------- Bigger back arrow everywhere ---------- */
+.thread-header .back { font-size: 1.9rem; line-height: 1; padding: 2px 4px 2px 0; }
+
+/* ---------- WhatsApp-style voice player ---------- */
+.voice-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-dark); border-radius: 999px; padding: 6px 14px 6px 6px; min-width: 200px; }
+.voice-play-btn { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--accent-dark); border: none; font-size: .85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+.voice-wave { position: relative; flex: 1; height: 22px; }
+.voice-wave-base, .voice-wave-progress { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
+.voice-wave-base span, .voice-wave-progress span { flex: 1; border-radius: 2px; }
+.voice-wave-base span { background: rgba(255,255,255,.35); }
+.voice-wave-progress span { background: #fff; }
+.voice-wave-progress { clip-path: inset(0 100% 0 0); }
+.voice-time { font-size: .68rem; color: rgba(255,255,255,.9); min-width: 32px; text-align: right; }
+
+/* ---------- WhatsApp-style recording bar ---------- */
+.recording-bar { justify-content: space-between; }
+.rec-indicator { display: flex; align-items: center; gap: 8px; color: var(--danger); font-weight: 600; font-size: .92rem; }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); animation: recPulse 1s infinite; }
+@keyframes recPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* ---------- TikTok-style Market side icons ---------- */
+.reel .side { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 22px; align-items: center; }
+.side-btn { background: none; border: none; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; padding: 0; text-shadow: 0 1px 5px rgba(0,0,0,.6); }
+.side-btn span { font-size: .72rem; font-weight: 700; margin-top: 2px; text-shadow: 0 1px 5px rgba(0,0,0,.6); }
+.side-btn.active { color: var(--danger); }
+.side-avatar-wrap { position: relative; margin-bottom: 4px; }
+.side-avatar-wrap .avatar { width: 46px; height: 46px; border: 2px solid #fff; }
+.side-follow-badge {
+  position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--danger); color: #fff; font-size: .95rem; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center; border: 2px solid #fff; cursor: pointer;
+}
+.side-follow-badge.following { background: var(--success); }

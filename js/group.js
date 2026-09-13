@@ -3,6 +3,8 @@ const groupId = new URLSearchParams(window.location.search).get("id");
 const me = getUser();
 if (!groupId) window.location.href = "groups.html";
 
+let lastMessageSignature = null;
+
 async function loadThread() {
   const threadEl = document.getElementById("thread");
   try {
@@ -21,12 +23,16 @@ async function loadThread() {
       settingsLink.href = "group-settings.html?id=" + groupId;
     }
 
-    if (!data.messages.length) {
-      threadEl.innerHTML = `<div class="empty">No messages yet. Be the first to say something.</div>`;
-    } else {
-      threadEl.innerHTML = data.messages.map(renderBubble).join("");
+    const signature = data.messages.map((m) => m.id).join(",");
+    if (signature !== lastMessageSignature) {
+      lastMessageSignature = signature;
+      if (!data.messages.length) {
+        threadEl.innerHTML = `<div class="empty">No messages yet. Be the first to say something.</div>`;
+      } else {
+        threadEl.innerHTML = data.messages.map(renderBubble).join("");
+      }
+      threadEl.scrollTop = threadEl.scrollHeight;
     }
-    threadEl.scrollTop = threadEl.scrollHeight;
 
     const composer = document.getElementById("composer");
     if (!group.posts_enabled || (group.post_permission === "owner_only" && group.owner_id !== me.id)) {
