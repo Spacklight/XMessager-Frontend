@@ -156,6 +156,28 @@ if (getToken()) {
   setInterval(refreshNotifBadge, 15000);
 }
 
+const _loaderStartedAt = Date.now();
+
+function hidePageLoader() {
+  const loader = document.getElementById("pageLoader");
+  if (!loader) return;
+  loader.classList.add("loader-hidden");
+  setTimeout(() => { loader.style.display = "none"; }, 400);
+}
+
+// Waits for `promise` to settle, then hides the loader — but never shows it
+// for less than 400ms (feels broken/flickery) or more than 4s (feels stuck).
+function finishPageLoad(promise) {
+  const MIN_DISPLAY = 400;
+  const MAX_WAIT = 4000;
+  const safety = setTimeout(hidePageLoader, MAX_WAIT);
+  Promise.resolve(promise).catch(() => {}).finally(() => {
+    clearTimeout(safety);
+    const elapsed = Date.now() - _loaderStartedAt;
+    setTimeout(hidePageLoader, Math.max(MIN_DISPLAY - elapsed, 0));
+  });
+}
+
 function toast(msg) {
   const el = document.createElement("div");
   el.className = "toast";

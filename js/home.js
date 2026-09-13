@@ -6,7 +6,8 @@ if (requireLogin()) {
   if (user?.profile_picture_url) avatarEl.outerHTML = `<img class="avatar" src="${user.profile_picture_url}">`;
   else avatarEl.textContent = initials(user?.display_name);
 
-  loadHome();
+  const homePromise = loadHome();
+  finishPageLoad(homePromise);
 
   const overlay = document.getElementById("sheetOverlay");
   document.getElementById("fabBtn").addEventListener("click", () => overlay.classList.remove("hidden"));

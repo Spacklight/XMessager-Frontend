@@ -6,11 +6,18 @@ if (requireLogin()) {
   const avatarEl = document.getElementById("myAvatar");
   if (me?.profile_picture_url) avatarEl.outerHTML = `<img class="avatar" src="${me.profile_picture_url}">`;
   else avatarEl.textContent = initials(me?.display_name);
-  loadFeed();
+  finishPageLoad(loadFeed());
 }
 
 let currentVideoId = null;
 let videosById = {};
+let soundEnabled = false;
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.querySelectorAll(".reel video").forEach((v) => { v.muted = !soundEnabled; });
+  document.querySelectorAll(".mute-toggle").forEach((b) => { b.textContent = soundEnabled ? "🔊" : "🔇"; });
+}
 
 const ICONS = {
   heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 4 14.2 4 9.2C4 6.3 6.3 4 9.2 4C10.7 4 12 4.9 12 4.9C12 4.9 13.3 4 14.8 4C17.7 4 20 6.3 20 9.2C20 14.2 12 21 12 21Z"/></svg>`,
@@ -32,15 +39,26 @@ async function loadFeed() {
 
     wrap.innerHTML = data.videos.map(renderReel).join("");
     setupAutoplay(data.videos);
+    await waitFirstVideoReady();
   } catch (err) {
     wrap.innerHTML = `<div class="empty" style="color:#fff">${escapeHtml(err.message)}</div>`;
   }
 }
 
+function waitFirstVideoReady() {
+  return new Promise((resolve) => {
+    const firstVideo = document.querySelector(".reel video");
+    if (!firstVideo || firstVideo.readyState >= 1) return resolve();
+    firstVideo.addEventListener("loadedmetadata", () => resolve(), { once: true });
+    setTimeout(resolve, 2000);
+  });
+}
+
 function renderReel(v) {
   const displayName = v.uploader_type === "page" ? (v.page_name || "Page") : (v.uploader || "Individual");
   return `<div class="reel">
-    <video src="${v.url}" loop muted playsinline preload="metadata"></video>
+    <video src="${v.url}" loop playsinline preload="metadata" muted></video>
+    <button class="mute-toggle" onclick="toggleSound()">${soundEnabled ? "🔊" : "🔇"}</button>
     <div class="info">
       <div class="uploader-row">
         <strong>${escapeHtml(displayName)}</strong>
@@ -175,6 +193,7 @@ function setupAutoplay(videos) {
       const video = entry.target.querySelector("video");
       const idx = reels.indexOf(entry.target);
       if (entry.isIntersecting) {
+        video.muted = !soundEnabled;
         video.play().catch(() => {});
         if (!counted.has(idx)) {
           counted.add(idx);
