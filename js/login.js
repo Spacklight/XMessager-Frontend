@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZV-J01dW_a2ZGm4HFIIyHGIDeWqXdH3Y",
@@ -17,20 +17,37 @@ const provider = new GoogleAuthProvider();
 document.getElementById("logoImg").src = LOGO_URL;
 if (getToken()) window.location.href = "home.html";
 
-document.getElementById("googleBtn").addEventListener("click", () => {
-  signInWithRedirect(auth, provider);
+const errEl = document.getElementById("err");
+const googleBtn = document.getElementById("googleBtn");
+
+async function completeSignIn(firebaseUser) {
+  const idToken = await firebaseUser.getIdToken();
+  const data = await social("/api/auth/google", { method: "POST", body: JSON.stringify({ id_token: idToken }) });
+  setSession(data.token, data.user);
+  window.location.href = "home.html";
+}
+
+googleBtn.addEventListener("click", async () => {
+  errEl.textContent = "";
+  googleBtn.disabled = true;
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await completeSignIn(result.user);
+  } catch (err) {
+    if (["auth/popup-blocked", "auth/popup-closed-by-user", "auth/cancelled-popup-request", "auth/operation-not-supported-in-this-environment"].includes(err.code)) {
+      try {
+        await signInWithRedirect(auth, provider);
+        return;
+      } catch (err2) {
+        errEl.textContent = err2.message || "Sign-in failed";
+      }
+    } else {
+      errEl.textContent = err.message || "Sign-in failed";
+    }
+    googleBtn.disabled = false;
+  }
 });
 
-const errEl = document.getElementById("err");
-
 getRedirectResult(auth)
-  .then(async (result) => {
-    if (!result) return;
-    const idToken = await result.user.getIdToken();
-    const data = await social("/api/auth/google", { method: "POST", body: JSON.stringify({ id_token: idToken }) });
-    setSession(data.token, data.user);
-    window.location.href = "home.html";
-  })
-  .catch((err) => {
-    errEl.textContent = err.message || "Sign-in failed";
-  });
+  .then((result) => { if (result) return completeSignIn(result.user); })
+  .catch((err) => { errEl.textContent = err.message || "Sign-in failed"; });
